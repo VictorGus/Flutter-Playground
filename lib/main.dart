@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(home: MyApp()));
 }
 
 class ParentWidget extends StatefulWidget {
@@ -143,6 +143,13 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
   }
 }
 
+class StateScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(appBar: AppBar(), body: Center(child: ParentWidget()));
+  }
+}
+
 class MyApp extends StatelessWidget {
   Column _buildButtonColumn(IconData icon, String title, Color color) {
     return (Column(
@@ -219,18 +226,24 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Scaffold(
-          body: ListView(
-            children: [
-              imageSection,
-              titleSection,
-              buttonSection,
-              textSection,
-              TapboxA(),
-              ParentWidget()
-            ],
-          ),
-          appBar: AppBar(title: Text('Flutter Demo Hello World Page'))),
+      home: Builder(
+          builder: (context) => Scaffold(
+              body: ListView(
+                children: [
+                  imageSection,
+                  titleSection,
+                  buttonSection,
+                  textSection,
+                  FlatButton(
+                      onPressed: () => Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return StateScreen();
+                          })),
+                      child: Text("Parent state")),
+                  TapboxA(),
+                ],
+              ),
+              appBar: AppBar(title: Text('Flutter Demo Hello World Page')))),
     );
   }
 }
