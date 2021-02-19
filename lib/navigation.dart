@@ -1,0 +1,127 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+
+class Book {
+  final String title;
+  final String author;
+
+  Book(this.title, this.author);
+}
+
+class BooksApp extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _BooksAppState();
+}
+
+class _BooksAppState extends State<BooksApp> {
+  Book _selectedBook;
+  bool show404 = false;
+  List<Book> books = [
+    Book('Stranger in a Strange Land', 'Robert A. Heinlein'),
+    Book('Foundation', 'Isaac Asimov'),
+    Book('Fahrenheit 451', 'Ray Bradbury'),
+  ];
+
+  void initState() {
+    super.initState();
+  }
+
+  void _handleBookTapped(Book book) {
+    setState(() {
+      _selectedBook = book;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Books App',
+      home: Navigator(
+        pages: [
+          MaterialPage(
+            key: ValueKey('BooksListPage'),
+            child: BookListScreen(
+              books: books,
+              onTapped: _handleBookTapped,
+            ),
+          ),
+          if (_selectedBook != null) BookDetailsPage(book: _selectedBook)
+        ],
+        onPopPage: (route, result) {
+          if (route.didPop(result)) {
+            return false;
+          }
+
+          setState(() {
+            _selectedBook = null;
+          });
+
+          return true;
+        },
+      ),
+    );
+  }
+}
+
+class BookDetailsPage extends Page {
+  final Book book;
+
+  BookDetailsPage({this.book}) : super(key: ValueKey(book));
+
+  Route createRoute(BuildContext context) {
+    return MaterialPageRoute(
+        settings: this,
+        builder: (BuildContext contxt) {
+          return BookDetailsScreen(book: book);
+        });
+  }
+}
+
+class BookListScreen extends StatelessWidget {
+  final List<Book> books;
+  final ValueChanged<Book> onTapped;
+  BookListScreen({@required this.books, @required this.onTapped});
+
+  Widget build(BuildContext context) {
+    return (Scaffold(
+      appBar: AppBar(),
+      body: ListView(
+        children: [
+          for (var book in books)
+            ListTile(
+              title: Text(book.title),
+              subtitle: Text(book.author),
+              onTap: () => onTapped(book),
+            ),
+        ],
+      ),
+    ));
+  }
+}
+
+class BookDetailsScreen extends StatelessWidget {
+  final Book book;
+
+  BookDetailsScreen({
+    @required this.book,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return (Scaffold(
+        appBar: AppBar(),
+        body: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (book != null) ...[
+                  Text(book.title,
+                      style: Theme.of(context).textTheme.headline6),
+                  Text(book.author,
+                      style: Theme.of(context).textTheme.subtitle1),
+                ]
+              ],
+            ))));
+  }
+}
